@@ -1,0 +1,483 @@
+
+@configuration means loading our Class to classpath xml definition reader.(or)Registering our class with container.
+Annotating a class with the @Configuration indicates that the class can be used by the Spring IoC container as a source of bean definitions.
+we chane the class name by use @configuration(" ",value="")
+
+@Configuration
+@ComponentScan(basePackages={"com.spring"})
+public class DBUtitlity {
+	
+	public DataSource getDataSource(){
+		DriverManagerDataSource dataSource = new DriverManagerDataSource("jdbc:oracle:thin:@localhost:1521:xe","spring", "abc");
+		dataSource.setDriverClassName("oracle.jdbc.driver.OracleDriver");
+		System.out.println("DBUtility================================");
+		return dataSource;
+	}
+	@Bean(name="db")
+	public JdbcTemplate getJdbcTemplate(){
+		JdbcTemplate jdbcTemplate= new JdbcTemplate(getDataSource());
+		return jdbcTemplate;
+ 		
+	}
+	
+}
+@Repository
+public class EmployeeDAO {
+    @Autowired
+	private JdbcTemplate db;
+
+	public JdbcTemplate getJdbcTemplate() {
+		return db;
+	}
+
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.db = jdbcTemplate;
+	}
+	
+	
+	
+	public int insertRecords(EmployeeFormBean employee){
+		
+		System.out.println("empDao++++=========================");
+		return db.update("insert into employee values("+employee.getEno()+",'"+employee.getName()+"',"+employee.getSalary() +")");
+		}
+
+how it doo internally
+=======================
+AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ ctx.register(DBUtility.class);
+ JdbcTemplate  db=ctx.getBean(JdbcTemplate.class);
+ 
+ format in xml file
+
+ 
+ <beans>
+    <context:annotation-config/>
+    <bean class="com.spring.DBUtility"/>
+	
+ </beans>
+ 
+ 
+ 
+ 
+ 
+ ================================================================================================================================================================
+ 
+ @Configuration:
+ ==============
+ 
+ @configuration means loading our Class to classpath xml definition reader.(or)Registering our class with container.
+we chane the class name by use @configuration(" ",value="")
+What is Bootstrapping?
+Bootstrapping means loading our class at runtime,its same as like java class Loader
+
+
+org.springframework.context.annotation
+@Target(value=TYPE)
+ @Retention(value=RUNTIME)
+ @Documented
+ @Component
+public @interface Configuration
+Indicates that a class declares one or more @Bean methods and may be processed by the Spring container to generate bean definitions and service requests for those beans at runtime, for example:
+ @Configuration
+ public class AppConfig {
+
+     @Bean
+     public MyBean myBean() {
+         // instantiate, configure and return bean ...
+     }
+ }
+ 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+If you are using @Configuration annotation spring internally follows some steps:
+  It will bootstraping the class (or) It will load the class in to AnnotationConfigApplicationContext class by using register() method (or) it will register the class.
+  When it finds @Bean Annotations in that class it will load method return type of that class and then we will get the factory bean object internally like below...
+   MyBean myBean = ctx.getBean(MyBean.class);
+   
+   We can change name of class by  using @Bean(value="").This @Bean same our <bean></bean> in springBeanconfiguration file.
+   And for @Bean(value="",init_method="",destroy="",name=" ") same as our <bean init_method="",destroy="",name=" "></bean>.
+--------------------------------------------------------------------------------------------------------------------------
+Bootstrapping @Configuration classes
+Via AnnotationConfigApplicationContext
+
+@Configuration classes are typically bootstrapped using either AnnotationConfigApplicationContext or its web-capable variant, AnnotationConfigWebApplicationContext. A simple example with the former follows:
+
+ AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+ ctx.register(AppConfig.class);
+ ctx.refresh();
+ MyBean myBean = ctx.getBean(MyBean.class);
+ // use myBean ...
+ 
+ 
+
+
+
+ ------------------------------------------------------------------------------------------------------------------------------------------------------------
+As an alternative to registering @Configuration classes directly against an AnnotationConfigApplicationContext, @Configuration classes may be declared as normal <bean> definitions within Spring XML files:
+
+ See AnnotationConfigApplicationContext Javadoc for further details and see AnnotationConfigWebApplicationContext for web.xml configuration instructions.
+Via Spring <beans> XML
+
+ <beans>
+    <context:annotation-config/>
+    <bean class="com.acme.AppConfig"/>
+ </beans>
+In the example above, <context:annotation-config/> is required in order to enable ConfigurationClassPostProcessor and other annotation-related post processors that facilitate handling @Configuration classes.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+@ComponentScan()
+================
+Simply put - @ComponentScan tells Spring container in which packages you have annotated classes which should be managed by Spring container. Spring needs to know which packages contain spring beans.
+
+NOTE:
+if you specify just @ComponetScan, it will scan that current  package only,
+if you specify @ComponentScan(basePackages="com.spring"),if load other packages classes or current package classes we will use this Annnotation.
+
+Via component scanning
+@Configuration is meta-annotated with @Component, therefore @Configuration classes are candidates for component scanning (typically using Spring XML's <context:component-scan/> element) and therefore may also take advantage of @Autowired/@Inject like any regular @Component. In particular, if a single constructor is present autowiring semantics will be applied transparently:
+
+ @Configuration
+ public class AppConfig {
+     private final SomeBean someBean;
+
+     public AppConfig(SomeBean someBean) {
+         this.someBean = someBean;
+     }
+
+     // @Bean definition using "SomeBean"
+
+ }
+@Configuration classes may not only be bootstrapped using component scanning, but may also themselves configure component scanning using the @ComponentScan annotation:
+
+ @Configuration
+ @ComponentScan("com.acme.app.services")
+ public class AppConfig {
+     // various @Bean definitions ...
+ }
+See the @ComponentScan javadoc for details.
+ 
+ =============================================================================================================================================================
+ 
+ @component
+ =============
+ 
+ difference between @component-scan
+ 
+ @Target(value=TYPE)
+ @Retention(value=RUNTIME)
+ @Documented
+ @Indexed
+public @interface Component
+Indicates that an annotated class is a "component". Such classes are considered as candidates for auto-detection when using annotation-based configuration and classpath scanning.
+Other class-level annotations may be considered as identifying a component as well, typically a special kind of component: e.g. the @Repository annotation or AspectJ's @Aspect annotation.
+
+
+The @Component annotation marks a java class as a bean so the component-scanning mechanism of spring can pick it up and pull it into the application context. To use this annotation, apply it over class as below:
+
+@Component
+public class EmployeeDAOImpl implements EmployeeDAO {
+    ...
+}
+
+Note:  @Component in  same as configuring  in spring bean configuration file as <bean></bean> tag.
+
+
+@Repository
+============
+2) Although above use of @Component is good enough but you can use more suitable annotation that provides additional benefits specifically for DAOs i.e. @Repository annotation. The @Repository annotation is a specialization of the @Component annotation with similar use and functionality. In addition to importing the DAOs into the DI container, it also makes the unchecked exceptions (thrown from DAO methods) eligible for translation into Spring DataAccessException.
+
+@Service
+============
+3) The @Service annotation is also a specialization of the component annotation. It doesn’t currently provide any additional behavior over the @Component annotation, but it’s a good idea to use @Service over @Component in service-layer classes because it specifies intent better. Additionally, tool support and additional behavior might rely on it in the future.
+
+@Controller
+============
+4) @Controller annotation marks a class as a Spring Web MVC controller. It too is a @Component specialization, so beans marked with it are automatically imported into the DI container. When you add the @Controller annotation to a class, you can use another annotation i.e. @RequestMapping; to map URLs to instance methods of a class.
+
+Note:
+In real life, you will face very rare situations where you will need to use @Component annotation. Most of the time, you will using @Repository, @Service and @Controller annotations. @Component should be used when your class does not fall into either of three categories i.e. controller, manager and dao.
+ 
+ 
+ ================================================================================================================================================================
+ 
+ 
+ @Bean
+ =====================
+ 
+ org.springframework.context.annotation
+ @Target(value={METHOD,ANNOTATION_TYPE})
+ @Retention(value=RUNTIME)
+ @Documented
+public @interface Bean
+
+
+ @Bean(value="",init_method="",destroy="",name=" ") 
+
+Indicates that a method produces a bean to be managed by the Spring container.
+Overview
+The names and semantics of the attributes to this annotation are intentionally similar to those of the <bean/> element in the Spring XML schema. For example:
+
+     @Bean
+     public MyBean myBean() {
+         // instantiate and configure MyBean obj
+         return obj;
+     }
+ 
+ 
+ 
+ @Bean Same as FactoryBean . It Will return Object.
+ 
+ ----------------------------------------------------
+ @Configuration
+public class Sample_configuration_Bean
+{   
+	
+	
+    @Bean
+	public Employee getemployee()
+	{
+    	Employee employee=new Employee();
+		return employee;
+	}
+	}
+	
+	
+	public class App 
+{
+    public static void main( String[] args )
+    {
+      AnnotationConfigApplicationContext container=
+    		  new AnnotationConfigApplicationContext(Sample_configuration_Bean.class);
+      
+      String[] names = container.getBeanDefinitionNames();
+      for (String s : names) {
+		System.out.println(s);
+	}
+    
+      Object bean = container.getBean("getemployee");
+      System.out.println(bean);
+      String name = bean.getClass().getName();
+      System.out.println(name);
+
+      
+    }
+
+}
+
+output
+==========
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor
+org.springframework.context.annotation.internalRequiredAnnotationProcessor
+org.springframework.context.annotation.internalCommonAnnotationProcessor
+org.springframework.context.event.internalEventListenerProcessor
+org.springframework.context.event.internalEventListenerFactory
+sample_configuration_Bean
+getemployee
+com.annotations.Annotations_Internals.Employee@32cf48b7
+com.annotations.Annotations_Internals.Employee
+
+
+
+
+when it finds @Bean it will load method name and it will return the factory Bean object.
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Bean Names
+ =============
+While a name() attribute is available, the default strategy for determining the name of a bean is to use the name of the @Bean method. This is convenient and intuitive, but if explicit naming is desired, the name attribute (or its alias value) may be used. Also note that name accepts an array of Strings, allowing for multiple names (i.e. a primary bean name plus one or more aliases) for a single bean.
+
+     @Bean({"b1", "b2"}) 
+     public MyBean myBean() {
+         // instantiate and configure MyBean obj
+         return obj;
+     }
+ 
+=================================================================================================================================================================
+
+@Autowired
+===============
+org.springframework.beans.factory.annotation
+@Target(value={CONSTRUCTOR,METHOD,PARAMETER,FIELD,ANNOTATION_TYPE})
+ @Retention(value=RUNTIME)
+ @Documented
+public @interface Autowired
+
+Marks a constructor, field, setter method or config method as to be autowired by Spring's dependency injection facilities.
+By Default @Autowired is true i.e @Autowired(required=true) if it is true , it will search for dependent class and it will create a object , if class is not found then it will throw an exception called 'No Such Bean Exception Found' .
+
+if you put @Autowired(required=false) , then it will search for dependent class if it will create an object otherwise it will return null value to the dependent class after that it will create main calss object.
+
+By Default @Autowired follows ByType attribute model.
+
+
+@Configuration
+//@ComponentScan("com.spring")// if you write just companentScan
+                               //it will just scan this package only
+//if you want to scan  different packages classes.we will use base packages.
+//@ComponentScan
+public class Employee 
+{
+
+@Value("1")	
+private Integer eno;
+@Value("vijay")
+private String name;
+
+@Autowired
+private Address address;
+
+}
+
+
+@Configuration
+public class Address 
+{
+@Value("sec-bad")	
+private String street;
+@Value("Hyd")
+private String city;
+}
+
+
+public class Container_App 
+{
+public static void main(String[] args) {
+	
+	AnnotationConfigApplicationContext container=new AnnotationConfigApplicationContext(Employee.class);
+	String[] beanDefinitionNames = container.getBeanDefinitionNames();
+	
+	for(int i=0;i<beanDefinitionNames.length;i++)
+	{
+		System.out.println(beanDefinitionNames[i]);
+	}
+	
+	Employee employee = container.getBean(Employee.class);
+	System.out.println(employee);
+	
+	
+}
+}
+
+
+
+
+Here we want to create a Address object  before creating a employee object so we declared a Address Class instance variable in Employee class
+and specify @Autowired annotation at top of that variable.
+
+@Configuration
+@ComponentScan("com.spring")
+public class Employee 
+{
+
+@Value("1")	
+private Integer eno;
+@Value("vijay")
+private String name;
+
+@Autowired
+private Address address;
+
+}
+
+
+Here we have to load Employee class by using AnnotationConfigApplicationContext because we are not using spring.xml file.
+AnnotationConfigApplicationContext container=new AnnotationConfigApplicationContext(Employee.class);
+
+
+By executing above line,spring container serach for Employee.class.it will found the class by using the @Configuration annotation.
+next then if we find @Autowired annotation,it will create that Address object and next it will create employee class.
+if we not use @ComponentScan top of the employee class,it will not load the Address Class,Then Spring container not able to find the Address class,then we get
+Exception 'nosuchbeanfound' at the time of making dependency.
+
+At the top of the Address class we must use @Component or @configuration Annotation,Then only container thinks its as Bean class.
+
+
+@Configuration
+public class Address 
+{
+@Value("sec-bad")	
+private String street;
+@Value("Hyd")
+private String city;
+}
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+ Command Bean
+ ==================
+Command Object - a JavaBean which will be populated with the data from your forms
+Think of Command Object as a POJO/JavaBean/etc.. that backs the form in your presentation layer.
+[We will store data by command Bean object which we submitted through by form,and again we get data from the database and stored in command Bean object and
+from that CommandBean Object again we will display that data in presentation Layer.]
+
+Once the form is submitted, all the individual attributes are mapped/bound to this object. On the way up to presentation, Command Object properties may be used to pre/populate the form.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Binding Process:
+ =====================
+ 
+ 
+ Creating command bean object or form bean object and capture the data form and the store data in to the command bean object is called Data Binding process.
+ In the form  based application dispatcher servlet service() method is responcible to perform data binding process.
+ 
+ BindinResult:
+ ----------------
+ when Binding process under exicution if you any failures or errors occurs that data(errors or failures) will be stored in BindinResult object.
+ 
+ ModelAndView Object:
+ -----------------------
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 

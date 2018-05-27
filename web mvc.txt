@@ -1,0 +1,54 @@
+public class dispatcherServlet implements 
+{
+init()
+{
+
+String name=config.getServlet();
+String filename= name+" "+servlet.xml
+
+webApplication container=new xmlWebApplicationContext(Parentcontainer"","filename");
+FirstController fc= container.getBean(FirstController.class);
+container.getBean(InternalResourceViewResolver.class);
+
+}
+
+
+user sends a request ( http://localhost:8080/Springwebapp/fc.action) to the server then it is stored in request object and server will use the request object and take the url pattern from the request object and such that url in web.xml file if it match or if it not exact match it will take appropriate url pattern and execute that servlet.
+
+   when ever server receive a request the servlet container read the url ,in these we have dispatcherServlet is configured in web.xml so, the url is match then the container calls the dispatcherServlet class and create the object to the class and calls the init() available in that class.
+            
+			
+			 
+ Ex:-
+-------- 
+init()
+{
+
+String name=config.getServlet();
+String filename= name+" "+servlet.xml
+
+webApplication container=new xmlWebApplicationContext(Parentcontainer"","filename");
+FirstController fc= container.getBean(FirstController.class);
+
+container.getBean(InternalResourceViewResolver.class);
+
+}
+
+
+     In the execution of init() the dispatcherServlet servlet internally find the name of the dispatcherServlet ( as u specified in <servlet-name> tag  and generate complete xml name and store in a variable where file like(springservlet.xml) as show in above init().
+	  and next create the container object by passing xml as parameter to the class called xmlWebApplicationContext and to get container from these class . and server will open the request( http://localhost:8080/Springwebapp/fc.action)  object and find the url and searches the url matches any bean is available in that xml or not . if it is available container reads the bean class create object to the bean class. 
+      the bean class is a firstcontroller and these class contains handleRequest() and execute it. the return type of these method is 'ModelAndView' ,these object is handover the request to the dispatcherServlet servlet service() method.
+			
+	   The modelAndView object contains the jsp information. 
+	   
+	    The dispatcherServlet is transfer the jsp information to InternalResourceViewResolver.
+		
+		The InternalResourceViewResolver is responsible is finds the jsp responsible to generate the output which jsp and where it is available and these detais sent back to dispatcherServlet.
+	   
+      now the dispatcherServlet take the help of InternalResourceViewResolver to get the jsp information to transfer the request finally the dispatcherServlet knows the which jsp responsible to generate output to call that jsp .
+
+
+
+
+
+   

@@ -1,0 +1,35 @@
+completed topics
+------------------
+Mvc internals
+
+controller def and usage 
+Abstract controller advantages 
+
+
+
+pending
+--------------------
+
+model and view object ( verify classes also)
+
+view interface.
+
+request params five types
+
+binding result
+
+Binding Data process
+
+
+validation and its types
+
+taglibs in jsp
+
+request mapping 
+
+command bean object 
+
+
+scopes like request responce and session and servlet context 
+
+listeners and actions and event and types 

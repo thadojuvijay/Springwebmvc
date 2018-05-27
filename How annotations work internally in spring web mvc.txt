@@ -1,0 +1,961 @@
+﻿
+What is dispatcher servlet?What does it do?
+What is contextLoaderListener?What does it do?
+what are the methods in controller interface?
+what are the methods in Abstract controller class?
+what are the methods of View Interface?
+What are the methods of AbstractView class?
+what are the methods of AbstractViewxls class?
+spring validations using BndingResults?
+
+
+
+
+
+
+
+
+
+
+
+
+Note : we will write notes for <compent-scan></compent-scan> alternative class defined
+
+
+
+
+
+When we deploy the project in server, At that time only the servletContext object is created,then at that time event is raised, then server container will check is
+ any listener Interface is  listen that event or not ,if  any listener is listen that event then server will create the object (here listener is contextLoaderListener) or if no listener is available then servlet container it will  keep quite. So here contextLoaderListener is available so server will create the object and in that contextLoaderListener we have init () method,Servlet Container will invoke that init() and in that init() method servlet container will find the name of springBeanConfiguration file by using <context-param></context-param> tag.
+
+    <context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/ApplicationContext.xml</param-value>
+	</context-param>
+	
+	and  servlet container will create the WebApplicationContext container object and servlet container will give that springBeanConfiguration  file to the WebApplicationContext container 
+and servlet container will give execution control to the webApplicationContext then webApplicationContext container
+
+
+
+
+
+
+	
+Root WebApplicationContext: initialization started
+Loading XML bean definitions from ServletContext resource [/WEB-INF/ApplicationContext.xml]
+Using JAXP provider
+Loading schema mappings from [META-INF/spring.schemas]
+Loaded schema mappings: 
+Found XML schema [http://www.springframework.org/schema/beans/spring-beans.xsd] 
+in classpath: org/springframework/beans/factory/xml/spring-beans-4.3.xsd
+Loading bean definitions
+org.springframework.beans.factory.xml.XmlBeanDefinitionReader  
+– Loaded 0 bean definitions from location pattern [/WEB-INF/ApplicationContext.xml]
+
+
+
+
+
+
+and if  webApplicationContext cotainer  find any beans it will execute that Beans and complete webApplicationContext Root initailization.
+
+
+Then again servlet container will create the Dispatcher Servlet object and in that Dispatcher servlet we have init () method,Servlet Container will invoke that init() and 
+in that init() method servlet container will find the name of springBeanConfiguration file  in two ways:
+step 1:
+======= 
+
+When we are configuring the dispatcherServlet SpringBeanconfiguration file, the <servlet-name> in web.xml and springBeanConfiguration file name must be same. And when we are saving name of springBeanConfiguration it should same name as <servlet-name> tag in web.xml and we should add extra thing (-servlet to that name of the springBeanConfiguration file) is like this [ Springcore-servlet.xml],
+ by default Sevlet Container will search the SpringBeanConfiguration file in Web-INF directory with the name of the <servlet-name> with –servlet (springcore-servlet.xml). If you not specify –servlet the container unable to find your springBeanConfiguration file. Then you get the exception.
+ if servlet container finds springBeanConfiguration file name and location,it will create WebApplicationContext child container and give that springBeanConfiguration file name and location to the WebApplicationContext child container and WebApplicationContext container will load that springBeanConfiguration file and execute that beans.
+
+
+step 2:
+========
+if you want to change the location or name of springBeanConfiguration file we will use <init-param> tag, then when we are saving the springBeanConfiguration file name,then it is not compulsory  <serlet-name> and springBeanConfiguration name sholud be same  and also no need to extra thing [-servlet]. 
+By using <init-param> tag directly  servlet container  will find the location and name of the springBeanConfiguration file 
+if servlet container finds springBeanConfiguration file name and location,it will create WebApplicationContext child container and give that springBeanConfiguration file name and location to the WebApplicationContext child container and WebApplicationContext container will load that springBeanConfiguration file and execute that beans
+
+<servlet>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath://com/spring/Configs/spring.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+ 
+
+
+we sholud inform DispatcherServlet init() to execute this Beans,if you want to tell dispatcherServlet execute this Beans,we must have some mechanism to tell
+about this beans,That why we must use springBeanConfiguration file and we need to configure that beans in our springBeanConfiguration file.
+and this project,we are using Annoations,to process this annoations (or) to work this annoations, 
+we will use  <context:annotation-config> and <context:component-scan base-package="com.spring">.
+
+    <context:annotation-config></context:annotation-config> -->
+	<context:component-scan base-package="com.spring"></context:component-scan>
+	 
+ 
+Without springBeanConfiguration file we cannot load our Beans(like Dao class,Service class,Controller class etc..) and we cannot create object to that beans,
+Thats why we are using springBeanConfiguration file in our project.
+
+
+
+first servlet container will find springBeanConfiguration file name and location by above two ways  and it will create the webApplicationContext container object
+and give that name and location to the webApplicationContext container. Then servlet container will give execution control to the WebApplicationContext container to initilization of webApplicationContext container.
+
+
+
+
+
+
+
+Loading XML bean definitions from class path resource [com/spring/Configs/spring.xml]
+Using JAXP provider [com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl]
+Loading schema mappings from [META-INF/spring.schemas]
+Loaded schema mappings:
+ Found XML schema 
+1324 [main] DEBUG org.springframework.beans.factory.xml.DefaultBeanDefinitionDocumentReader
+– Loading bean definitions
+1329 [main] DEBUG org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver
+– Loaded NamespaceHandler mappings:
+ {http://www.springframework.org/schema/p=org.springframework.beans.factory.xml.SimplePropertyNamespaceHandler, http://www.springframework.org/schema/mvc=org.springframework.web.servlet.config.MvcNamespaceHandler, http://www.springframework.org/schema/util=org.springframework.beans.factory.xml.UtilNamespaceHandler, http://www.springframework.org/schema/jee=org.springframework.ejb.config.JeeNamespaceHandler, http://www.springframework.org/schema/aop=org.springframework.aop.config.AopNamespaceHandler, http://www.springframework.org/schema/jdbc=org.springframework.jdbc.config.JdbcNamespaceHandler, http://www.springframework.org/schema/cache=org.springframework.cache.config.CacheNamespaceHandler, http://www.springframework.org/schema/c=org.springframework.beans.factory.xml.SimpleConstructorNamespaceHandler, http://www.springframework.org/schema/tx=org.springframework.transaction.config.TxNamespaceHandler, http://www.springframework.org/schema/task=org.springframework.scheduling.config.TaskNamespaceHandler, http://www.springframework.org/schema/lang=org.springframework.scripting.config.LangNamespaceHandler, http://www.springframework.org/schema/context=org.springframework.context.config.ContextNamespaceHandler}
+1508 [main] DEBUG org.springframework.context.annotation.ClassPathBeanDefinitionScanner  
+– JSR-250 'javax.annotation.ManagedBean' found and supported for component scanning
+
+
+
+
+1521 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver  
+– Resolved classpath location [com/spring/] to resources 
+[URL [file:/F:/interview%20step%20by%20step/spring-mvc/.metadata/.plugins/org.eclipse.wst.server.
+core/tmp0/wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/]]
+
+1522 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver
+– Looking for matching resources in directory tree [F:\interview step by step\spring-mvc
+\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps
+\SpringWebMvcAnnotations\WEB-INF\classes\com\spring]
+
+1522 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver
+–Searching directory [F:\interview step by step\spring-mvc\.metadata\.plugins
+\org.eclipse.wst.server.core\tmp0\wtpwebapps\SpringWebMvcAnnotations\WEB-INF\classes\com\spring]
+for files matching pattern [F:/interview step by step/spring-mvc/.metadata/.plugins
+/org.eclipse.wst.server.core/tmp0/wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/**/*.class]
+
+1546 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver 
+– Searching directory [F:\interview step by step\spring-mvc\.metadata\.plugins
+\org.eclipse.wst.server.core\tmp0\wtpwebapps\SpringWebMvcAnnotations\WEB-INF\classes
+\com\spring\commandbeans] for files matching pattern [F:/interview step by step/spring-mvc
+/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/
+wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/**/*.class]
+
+1548 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver 
+–Searching directory [F:\interview step by step\spring-mvc\.metadata\.plugins
+\org.eclipse.wst.server.core\tmp0\wtpwebapps\
+SpringWebMvcAnnotations\WEB-INF\classes\com\spring\Configs] 
+for files matching pattern [F:/interview step by step/spring-mvc
+/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/
+wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/**/*.class]
+
+
+
+
+1551 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver
+–Searching directory [F:\interview step by step\spring-mvc\.metadata\
+.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\SpringWebMvcAnnotations\
+WEB-INF\classes\com\spring\Controllers] for files matching pattern 
+[F:/interview step by step/spring-mvc/.metadata/.plugins/org.eclipse.wst.server.core/
+tmp0/wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/**/*.class]
+ 
+1564 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver
+– Searching directory [F:\interview step by step\spring-mvc\.metadata\.plugins
+\org.eclipse.wst.server.core\tmp0\wtpwebapps
+\SpringWebMvcAnnotations\WEB-INF\classes\com\spring\dao]
+for files matching pattern [F:/interview step by step/spring-mvc/
+.metadata/.plugins/org.eclipse.wst.server.core/
+tmp0/wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/**/*.class]
+
+1565 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver
+– Searching directory [F:\interview step by step\spring-mvc\
+.metadata\.plugins\org.eclipse.wst.server.core\tmp0\
+wtpwebapps\SpringWebMvcAnnotations\WEB-INF\classes\com\spring\service]
+for files matching pattern [F:/interview step by step/spring-mvc/.metadata
+/.plugins/org.eclipse.wst.server.core/
+tmp0/wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/**/*.class]
+
+
+1567 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver
+– Searching directory [F:\interview step by step\spring-mvc\.metadata
+\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps
+\SpringWebMvcAnnotations\WEB-INF\classes\com\spring\utility]
+for files matching pattern [F:/interview step by step/spring-mvc/.metadata
+/.plugins/org.eclipse.wst.server.core/tmp0/
+wtpwebapps/SpringWebMvcAnnotations/WEB-INF/classes/com/spring/**/*.class]
+
+
+
+1588 [main] DEBUG org.springframework.core.io.support.PathMatchingResourcePatternResolver
+– Resolved location pattern [classpath*:com/spring/**/*.class]
+ to resources [file [F:\interview step by step\spring-mvc\.metadata
+ \.plugins\org.eclipse.wst.server.core\tmp0\
+ wtpwebapps\SpringWebMvcAnnotations\WEB-INF\classes\com\spring\
+ commandbeans\EmployeeFormBean.class], file [F:\interview step by step\
+ spring-mvc\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps
+ \SpringWebMvcAnnotations\WEB-INF\classes\com\spring\Controllers\EmpController.class],
+ file [F:\interview step by step\spring-mvc\.metadata\.plugins\
+ org.eclipse.wst.server.core\tmp0\wtpwebapps\
+ SpringWebMvcAnnotations\WEB-INF\classes\com\spring\Controllers\Employee.class],
+ file [F:\interview step by step\spring-mvc\.metadata\.plugins\
+ org.eclipse.wst.server.core\tmp0\wtpwebapps\
+ SpringWebMvcAnnotations\WEB-INF\classes\com\spring\dao\EmployeeDAO.class], 
+ file [F:\interview step by step\spring-mvc\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\
+ wtpwebapps\SpringWebMvcAnnotations\WEB-INF\classes\com\spring\
+ service\EmployeeService.class], file [F:\interview step by step\
+ spring-mvc\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\
+ wtpwebapps\SpringWebMvcAnnotations\WEB-INF\classes\com\spring\utility\DBUtitlity.class]]
+
+
+
+
+
+
+
+
+
+
+
+
+1339 [main] DEBUG org.springframework.context.annotation.ClassPathBeanDefinitionScanner
+ – Identified candidate component class: file [F:\interview step by step\spring-mvc\
+ .metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\
+ SpringWebMvcAnnotations\WEB-INF\classes\com\spring\utility\DBUtitlity.class]
+ 
+1386 [main] DEBUG org.springframework.beans.factory.xml.XmlBeanDefinitionReader
+ – Loaded 10 bean definitions from location pattern [classpath://com/spring/Configs/spring.xml]
+ 
+1386 [main] DEBUG org.springframework.web.context.support.XmlWebApplicationContext
+– Bean factory for WebApplicationContext for namespace 'springDispatcherServlet-servlet': org.springframework.beans.factory.support.DefaultListableBeanFactory@c14e5a5:
+ defining beans [empController,employeeDAO,employeeService,DBUtitlity,
+org.springframework.context.annotation.internalConfigurationAnnotationProcessor,
+org.springframework.context.annotation.internalAutowiredAnnotationProcessor,
+org.springframework.context.annotation.internalRequiredAnnotationProcessor,
+org.springframework.context.annotation.internalCommonAnnotationProcessor,
+org.springframework.context.event.internalEventListenerProcessor,
+org.springframework.context.event.internalEventListenerFactory];
+parent: org.springframework.beans.factory.support.DefaultListableBeanFactory@23bd0c81
+ 
+ 
+ 
+1386 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Registering scope 'request' with implementation
+ [org.springframework.web.context.request.RequestScope@6206b4a7]
+
+ 1402 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Registering scope 'session' with implementation
+ [org.springframework.web.context.request.SessionScope@77896335]
+
+ 1402 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  
+– Registering scope 'globalSession' with implementation
+[org.springframework.web.context.request.SessionScope@5c1b89ac]
+
+1402 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Registering scope 'application' with implementation
+[org.springframework.web.context.support.ServletContextScope@40a1b6d4]
+
+1433 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating shared instance of singleton bean 
+'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
+
+1433 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating instance of bean 
+'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
+
+1449 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory 
+– Eagerly caching bean 
+'org.springframework.context.annotation.internalConfigurationAnnotationProcessor' 
+to allow for resolving potential circular references
+
+1449 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  
+– Finished creating instance of bean 
+'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
+
+
+
+1542 [main] DEBUG org.springframework.context.annotation.ConfigurationClassBeanDefinitionReader
+ – Registering bean definition for @Bean method com.spring.utility.DBUtitlity.jdbcTemplate()
+
+ 1765 [main] DEBUG org.springframework.context.annotation.ConfigurationClassEnhancer
+– Successfully enhanced com.spring.utility.DBUtitlity; 
+enhanced class name is: com.spring.utility.DBUtitlity$$EnhancerBySpringCGLIB$$6f22c15b
+
+
+1765 [main] DEBUG org.springframework.context.annotation.ConfigurationClassPostProcessor
+– Replacing bean definition 'DBUtitlity' existing class 'com.spring.utility.DBUtitlity'
+ with enhanced class 'com.spring.utility.DBUtitlity$$EnhancerBySpringCGLIB$$6f22c15b'
+
+1765 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating shared instance of singleton bean
+'org.springframework.context.annotation.internalAutowiredAnnotationProcessor'
+
+1765 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating instance of bean 
+'org.springframework.context.annotation.internalAutowiredAnnotationProcessor'
+
+1765 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Eagerly caching bean 
+'org.springframework.context.annotation.internalAutowiredAnnotationProcessor' 
+to allow for resolving potential circular references
+
+
+
+
+
+
+
+1796 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Finished creating instance of bean 
+'org.springframework.context.annotation.internalAutowiredAnnotationProcessor'
+
+1796 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating shared instance of singleton bean 
+'org.springframework.context.annotation.internalRequiredAnnotationProcessor'
+
+1796 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating instance of bean 
+'org.springframework.context.annotation.internalRequiredAnnotationProcessor'
+
+1796 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Eagerly caching bean 
+'org.springframework.context.annotation.internalRequiredAnnotationProcessor'
+ to allow for resolving potential circular references
+
+1812 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Finished creating instance of bean
+ 'org.springframework.context.annotation.internalRequiredAnnotationProcessor'
+
+1812 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating shared instance of singleton bean
+'org.springframework.context.annotation.internalCommonAnnotationProcessor'
+
+1812 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Creating instance of bean 
+'org.springframework.context.annotation.internalCommonAnnotationProcessor'
+
+1812 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory
+– Eagerly caching bean 
+'org.springframework.context.annotation.internalCommonAnnotationProcessor'
+ to allow for resolving potential circular references
+ 
+ 
+ 
+1827 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory 
+– Finished creating instance of bean
+ 'org.springframework.context.annotation.internalCommonAnnotationProcessor'
+1827 [main] DEBUG org.springframework.web.context.support.XmlWebApplicationContext  
+– Unable to locate MessageSource with name 'messageSource'
+ :using default [org.springframework.context.support.DelegatingMessageSource@4628a02b]
+1827 [main] DEBUG org.springframework.web.context.support.XmlWebApplicationContext  – Unable to locate ApplicationEventMulticaster with name 'applicationEventMulticaster': using default [org.springframework.context.event.SimpleApplicationEventMulticaster@2b01c689]
+1843 [main] DEBUG org.springframework.ui.context.support.UiApplicationContextUtils  – Unable to locate ThemeSource with name 'themeSource': using default [org.springframework.ui.context.support.DelegatingThemeSource@701c223a]
+1843 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@c14e5a5: defining beans [empController,employeeDAO,employeeService,DBUtitlity,org.springframework.context.annotation.internalConfigurationAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor,org.springframework.context.annotation.internalCommonAnnotationProcessor,org.springframework.context.event.internalEventListenerProcessor,org.springframework.context.event.internalEventListenerFactory,jdbcTemplate]; parent: org.springframework.beans.factory.support.DefaultListableBeanFactory@23bd0c81
+
+
+1843 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating shared instance of singleton bean 'empController'
+1843 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'empController'
+1890 [main] DEBUG org.springframework.beans.factory.annotation.InjectionMetadata  – Registered injected element on class [com.spring.Controllers.EmpController]: AutowiredFieldElement for private com.spring.service.EmployeeService com.spring.Controllers.EmpController.empService
+1890 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Eagerly caching bean 'empController' to allow for resolving potential circular references
+1890 [main] DEBUG org.springframework.beans.factory.annotation.InjectionMetadata  – Processing injected element of bean 'empController': AutowiredFieldElement for private com.spring.service.EmployeeService com.spring.Controllers.EmpController.empService
+1905 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating shared instance of singleton bean 'employeeService'
+1905 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'employeeService'
+1905 [main] DEBUG org.springframework.beans.factory.annotation.InjectionMetadata  – Registered injected element on class [com.spring.service.EmployeeService]: AutowiredFieldElement for private com.spring.dao.EmployeeDAO com.spring.service.EmployeeService.empdao
+1905 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Eagerly caching bean 'employeeService' to allow for resolving potential circular references
+1921 [main] DEBUG org.springframework.beans.factory.annotation.InjectionMetadata  – Processing injected element of bean 'employeeService': AutowiredFieldElement for private com.spring.dao.EmployeeDAO com.spring.service.EmployeeService.empdao
+1921 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating shared instance of singleton bean 'employeeDAO'
+1921 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'employeeDAO'
+1921 [main] DEBUG org.springframework.beans.factory.annotation.InjectionMetadata  – Registered injected element on class [com.spring.dao.EmployeeDAO]: AutowiredFieldElement for private org.springframework.jdbc.core.JdbcTemplate com.spring.dao.EmployeeDAO.abc
+1921 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Eagerly caching bean 'employeeDAO' to allow for resolving potential circular references
+1921 [main] DEBUG org.springframework.beans.factory.annotation.InjectionMetadata  – Processing injected element of bean 'employeeDAO': AutowiredFieldElement for private org.springframework.jdbc.core.JdbcTemplate com.spring.dao.EmployeeDAO.abc
+1937 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating shared instance of singleton bean 'jdbcTemplate'
+1937 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'jdbcTemplate'
+1937 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating shared instance of singleton bean 'DBUtitlity'
+1937 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'DBUtitlity'
+1937 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Eagerly caching bean 'DBUtitlity' to allow for resolving potential circular references
+1968 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'DBUtitlity'
+2187 [main] INFO  org.springframework.jdbc.datasource.DriverManagerDataSource  – Loaded JDBC driver: oracle.jdbc.driver.OracleDriver
+DBUtility================================
+2194 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Eagerly caching bean 'jdbcTemplate' to allow for resolving potential circular references
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Invoking afterPropertiesSet() on bean with name 'jdbcTemplate'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'jdbcTemplate'
+2225 [main] DEBUG org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor  – Autowiring by type from bean name 'employeeDAO' to bean named 'jdbcTemplate'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'employeeDAO'
+2225 [main] DEBUG org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor  – Autowiring by type from bean name 'employeeService' to bean named 'employeeDAO'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'employeeService'
+2225 [main] DEBUG org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor  – Autowiring by type from bean name 'empController' to bean named 'employeeService'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'empController'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'employeeDAO'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'employeeService'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'DBUtitlity'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'org.springframework.context.annotation.internalAutowiredAnnotationProcessor'
+2225 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'org.springframework.context.annotation.internalRequiredAnnotationProcessor'
+2241 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'org.springframework.context.annotation.internalCommonAnnotationProcessor'
+2241 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating shared instance of singleton bean 'org.springframework.context.event.internalEventListenerProcessor'
+2241 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.context.event.internalEventListenerProcessor'
+2241 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Eagerly caching bean 'org.springframework.context.event.internalEventListenerProcessor' to allow for resolving potential circular references
+2256 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.context.event.internalEventListenerProcessor'
+2256 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating shared instance of singleton bean 'org.springframework.context.event.internalEventListenerFactory'
+2256 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.context.event.internalEventListenerFactory'
+2256 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Eagerly caching bean 'org.springframework.context.event.internalEventListenerFactory' to allow for resolving potential circular references
+2272 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.context.event.internalEventListenerFactory'
+2272 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'jdbcTemplate'
+2272 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'org.springframework.context.event.internalEventListenerFactory'
+2334 [main] DEBUG org.springframework.web.context.support.XmlWebApplicationContext  – Unable to locate LifecycleProcessor with name 'lifecycleProcessor': using default [org.springframework.context.support.DefaultLifecycleProcessor@6a7a1a0d]
+2334 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'lifecycleProcessor'
+2334 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – Unable to locate MultipartResolver with name 'multipartResolver': no multipart request handling provided
+2350 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver'
+2350 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver'
+2350 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – Unable to locate LocaleResolver with name 'localeResolver': using default [org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver@33f4c769]
+2350 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.theme.FixedThemeResolver'
+2366 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.theme.FixedThemeResolver'
+2366 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – Unable to locate ThemeResolver with name 'themeResolver': using default [org.springframework.web.servlet.theme.FixedThemeResolver@9be7319]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2381 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping'
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Looking for URL mappings in application context: WebApplicationContext for namespace 'springDispatcherServlet-servlet': startup date [Wed Dec 27 14:55:33 IST 2017]; parent: Root WebApplicationContext
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'empController': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'employeeDAO': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'employeeService': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'DBUtitlity': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalAutowiredAnnotationProcessor': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalRequiredAnnotationProcessor': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalCommonAnnotationProcessor': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'org.springframework.context.event.internalEventListenerProcessor': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'org.springframework.context.event.internalEventListenerFactory': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'jdbcTemplate': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'environment': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'systemProperties': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'systemEnvironment': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'servletConfig': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.ConfigurationClassPostProcessor.importRegistry': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'messageSource': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'applicationEventMulticaster': no URL paths identified
+2428 [main] DEBUG org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping  – Rejected bean name 'lifecycleProcessor': no URL paths identified
+2428 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping'
+
+
+
+
+
+
+
+2444 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping'
+2459 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Looking for URL mappings in application context: WebApplicationContext for namespace 'springDispatcherServlet-servlet': startup date [Wed Dec 27 14:55:33 IST 2017]; parent: Root WebApplicationContext
+2475 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'empController'
+2475 [main] INFO  org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapped URL path [/home] onto handler 'empController'
+2475 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'empController'
+2475 [main] INFO  org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapped URL path [/home.*] onto handler 'empController'
+2475 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'empController'
+2475 [main] INFO  org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapped URL path [/home/] onto handler 'empController'
+2475 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'empController'
+2475 [main] INFO  org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapped URL path [/insert] onto handler 'empController'
+2475 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'empController'
+2475 [main] INFO  org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapped URL path [/insert.*] onto handler 'empController'
+2475 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Returning cached instance of singleton bean 'empController'
+2475 [main] INFO  org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapped URL path [/insert/] onto handler 'empController'
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'employeeDAO': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'employeeService': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'DBUtitlity': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalConfigurationAnnotationProcessor': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalAutowiredAnnotationProcessor': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalRequiredAnnotationProcessor': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.internalCommonAnnotationProcessor': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'org.springframework.context.event.internalEventListenerProcessor': no URL paths identified
+2475 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'org.springframework.context.event.internalEventListenerFactory': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'jdbcTemplate': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'environment': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'systemProperties': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'systemEnvironment': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'servletConfig': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'org.springframework.context.annotation.ConfigurationClassPostProcessor.importRegistry': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'messageSource': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'applicationEventMulticaster': no URL paths identified
+2491 [main] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Rejected bean name 'lifecycleProcessor': no URL paths identified
+2491 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping'
+
+
+
+
+2491 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – No HandlerMappings found in servlet 'springDispatcherServlet': using default
+2506 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter'
+2506 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter'
+2506 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter'
+2522 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter'
+2522 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter'
+2716 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter'
+2716 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – No HandlerAdapters found in servlet 'springDispatcherServlet': using default
+2716 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerExceptionResolver'
+2747 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerExceptionResolver'
+2747 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver'
+2762 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver'
+2762 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver'
+2794 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver'
+2794 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – No HandlerExceptionResolvers found in servlet 'springDispatcherServlet': using default
+2794 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator'
+2794 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator'
+2794 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – Unable to locate RequestToViewNameTranslator with name 'viewNameTranslator': using default [org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@4052913c]
+2809 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.view.InternalResourceViewResolver'
+2841 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.view.InternalResourceViewResolver'
+2841 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – No ViewResolvers found in servlet 'springDispatcherServlet': using default
+2856 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Creating instance of bean 'org.springframework.web.servlet.support.SessionFlashMapManager'
+2872 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Finished creating instance of bean 'org.springframework.web.servlet.support.SessionFlashMapManager'
+2872 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – Unable to locate FlashMapManager with name 'flashMapManager': using default [org.springframework.web.servlet.support.SessionFlashMapManager@5d767218]
+2872 [main] DEBUG org.springframework.jndi.JndiTemplate  – Looking up JNDI object with name [java:comp/env/spring.liveBeansView.mbeanDomain]
+2872 [main] DEBUG org.springframework.jndi.JndiLocatorDelegate  – Converted JNDI name [java:comp/env/spring.liveBeansView.mbeanDomain] not found - trying original name [spring.liveBeansView.mbeanDomain]. javax.naming.NameNotFoundException: Name [spring.liveBeansView.mbeanDomain] is not bound in this Context. Unable to find [spring.liveBeansView.mbeanDomain].
+2872 [main] DEBUG org.springframework.jndi.JndiTemplate  – Looking up JNDI object with name [spring.liveBeansView.mbeanDomain]
+2872 [main] DEBUG org.springframework.jndi.JndiPropertySource  – JNDI lookup for name [spring.liveBeansView.mbeanDomain] threw NamingException with message: Name [spring.liveBeansView.mbeanDomain] is not bound in this Context. Unable to find [spring.liveBeansView.mbeanDomain].. Returning null.
+2872 [main] DEBUG org.springframework.core.env.PropertySourcesPropertyResolver  – Could not find key 'spring.liveBeansView.mbeanDomain' in any property source
+2872 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – Published WebApplicationContext of servlet 'springDispatcherServlet' as ServletContext attribute with name [org.springframework.web.servlet.FrameworkServlet.CONTEXT.springDispatcherServlet]
+2872 [main] INFO  org.springframework.web.servlet.DispatcherServlet  – FrameworkServlet 'springDispatcherServlet': initialization completed in 1952 ms
+2872 [main] DEBUG org.springframework.web.servlet.DispatcherServlet  – Servlet 'springDispatcherServlet' configured successfully
+
+
+
+
+
+After user send the request
+============================
+
+14145 [http-nio-2015-exec-2] DEBUG org.springframework.web.servlet.DispatcherServlet  – DispatcherServlet with name 'springDispatcherServlet' processing GET request for [/SpringWebMvcAnnotations/home]
+14176 [http-nio-2015-exec-2] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapping [/home] to HandlerExecutionChain with handler [com.spring.Controllers.EmpController@5716ad50] and 1 interceptor
+14192 [http-nio-2015-exec-2] DEBUG org.springframework.web.servlet.DispatcherServlet  – Last-Modified value for [/SpringWebMvcAnnotations/home] is: -1
+14223 [http-nio-2015-exec-2] DEBUG org.springframework.web.bind.annotation.support.HandlerMethodInvoker  – Invoking request handler method: public java.lang.String com.spring.Controllers.EmpController.getHome()
+14238 [http-nio-2015-exec-2] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Invoking afterPropertiesSet() on bean with name 'Home.jsp'
+14238 [http-nio-2015-exec-2] DEBUG org.springframework.web.servlet.DispatcherServlet  – Rendering view [org.springframework.web.servlet.view.InternalResourceView: name 'Home.jsp'; URL [Home.jsp]] in DispatcherServlet with name 'springDispatcherServlet'
+14254 [http-nio-2015-exec-2] DEBUG org.springframework.web.servlet.view.InternalResourceView  – Forwarding to resource [Home.jsp] in InternalResourceView 'Home.jsp'
+14395 [http-nio-2015-exec-2] DEBUG org.springframework.web.servlet.DispatcherServlet  – Successfully completed request
+
+
+
+
+Whenever user send request to the spring web mvc application , this request is received by DispatcherServlet( with the name of ' springDispatcherServlet ') processing GET request for that url  [/SpringWebMvcAnnotations/home]  as you sending request to application.
+
+---> DispatcherServlet takes /home url , go to the Controller mapping with this url which you specified in Controller class by using RequestingMapping Annotation
+
+	 Note: - DefaultAnnotationHandlerMapping already contains all url's in our project because it was reads  all the url at the project deployment time and stored in jvm.
+	---------- 
+	 How it will Mapping the url?
+	 DispatcherServlet will give that url like '/home' to the DefaultAnnotationHandlerMapping  and DefaultAnnotationHandlerMapping will maps with that url.
+		
+		If it is not match with that url then DefaultAnnotationHandlerMapping it will return that result to the DispactherServlet.Then DispactherServlet will display that result like below
+
+		Example:
+		=========
+		
+		'WARN  org.springframework.web.servlet.PageNotFound  – No mapping found for HTTP request with URI [/SpringWebMvcAnnotations/hom] in DispatcherServlet with name 'springDispatcherServlet'
+ 
+
+		if that url is matched the it will execute the corresponding method specified in controller class .
+   
+        How it will execute that method ?   
+		The HandlerMethodInvoker invokes the corresponding method with that url specified in @RequestingMapping Annoation
+		like below:
+		
+		org.springframework.web.bind.annotation.support.HandlerMethodInvoker  – Invoking request handler method: public java.lang.String com.spring.Controllers.EmpController.getHome()
+		
+		When it will invoke this getHome() it will retrun resource like string,object or any jsp name...... in our case it will return "Home.jsp"
+		   
+		  Spring Internally executes this "Home.jsp" by using 'DefaultListableBeanFactory Interface inside afterPropertiesSet().
+			
+			like below:
+			 DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Invoking afterPropertiesSet() on bean with name 'Home.jsp'
+		
+		
+		Finally the result or return type of getHome() will return to DispactherServlet. so, DispactherServlet we have jspname.
+		
+		DispactherServlet now doesnt know the jsp location. it will find the jsp location by using InternalResourceViewResolver.
+		
+		The InternalResourceViewResolver will find the location of that jsp and given the resources (data) to that jsp and this information(location of jsp file) of jsp  given to  the dispatcherServlet. 
+		like below:
+		 DEBUG org.springframework.web.servlet.DispatcherServlet  – Rendering view [org.springframework.web.servlet.view.InternalResourceView: name 'Home.jsp'; URL [Home.jsp]] in DispatcherServlet with name 'springDispatcherServlet'
+		
+		Then Finally DispactherServlet gives the request back to client or user.
+		
+		========================================================================================================================================================
+		then dispatcherServlet will display the form
+		
+		
+  <form action="insert" method="post">
+  Enter eno: <input type="text" name="eno">
+  Employee Name:<input type="text" name="name">
+Employee salary:  <input type="text" name="salary">
+<input type="submit" value="submit">
+     </form>
+	 
+	 
+	 Then user fill the form and submit the form.
+	 The request will go to the dispatcherServlet with this url.(http://localhost:2015/SpringWebMvcAnnotations/insert)
+	 
+	  DispatcherServlet with name 'springDispatcherServlet' processing POST request for [/SpringWebMvcAnnotations/insert]
+2757271 [http-nio-2015-exec-1] DEBUG org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping  – Mapping [/insert] to HandlerExecutionChain with handler [com.spring.Controllers.EmpController@30971f23] and 1 interceptor
+2757336 [http-nio-2015-exec-1] DEBUG org.springframework.web.bind.annotation.support.HandlerMethodInvoker  – Invoking request handler method: public java.lang.String com.spring.Controllers.EmpController.insertRecords(com.spring.commandbeans.EmployeeFormBean)
+
+
+    @RequestMapping("/insert")
+	public String insertRecords(EmployeeFormBean employee)
+	{
+		System.out.println("empController=================================");
+		empService.insertRecords(employee);
+		System.out.println(employee.getName()+"-----"+employee.getSalary());
+		
+		return "display.jsp";
+	}
+	 
+	 
+	
+	 Then the request will go to the the dispatcherServlet along with the data...Then the dispatcherServlet will create the object of commandbean
+	 and stored that form data into the commandbean bean object.
+	 
+	 Command Bean
+ ==================
+Command Object - a JavaBean which will be populated with the data from your forms
+Think of Command Object as a POJO/JavaBean/etc.. that backs the form in your presentation layer.
+[We will store data by command Bean object which we submitted through by form,and again we get data from the database and stored in command Bean object and
+from that CommandBean Object again we will display that data in presentation Layer.]
+
+Once the form is submitted, all the individual attributes are mapped/bound to this object. On the way up to presentation, Command Object properties may be used to pre/populate the form.
+	 
+	 Binding process
+	 ================
+	 Creating command bean object or form bean object and capture the data form and the store data in to the command bean object is called Data Binding process.
+ In the form  based application dispatcher servlet service() method is responcible to perform data binding process.
+ 
+ BindinResult:
+ ----------------
+ when Binding process under exicution if you any failures or errors occurs that data(errors or failures) will be stored in BindinResult object.
+	 
+	 ModelandView:
+	 =============
+	 org.springframework.web.servlet 
+      Class ModelAndView
+	  
+	  The ModelAndView is a class and it contains two object i.e Model and View. 
+			In this Model object we can store data . and also transfer this data to speicific jsp  by using request object. That is DispactherServlet Model object will be stored in request object . 
+			
+			To set or store the data to Model object by using some predefined setter() methods.we can alson speicify or store in Model object by using key value pair.
+			
+	 The View is used to store Jsp information . we can store jsp name to this view object by using setViewName() mehtod.		
+	 
+	 
+	 Now commandobject have form data now.
+	 
+	 dispatcherServlet will execute this line
+	 empService.insertRecords(employee);
+	 it will invoke the servce class insertRecords method
+	 empdao.insertRecords(employee);
+	 it will invoke the empdao class insertRecords method.
+	 
+	 empController=================================
+empService()===============================
+empDao++++=========================
+2757337 [http-nio-2015-exec-1] DEBUG org.springframework.jdbc.core.JdbcTemplate  – Executing SQL update [insert into employee values(7,'vijay',47852)]
+2757349 [http-nio-2015-exec-1] DEBUG org.springframework.jdbc.datasource.DataSourceUtils  – Fetching JDBC Connection from DataSource
+2757350 [http-nio-2015-exec-1] DEBUG org.springframework.jdbc.datasource.DriverManagerDataSource  – Creating new JDBC DriverManager Connection to [jdbc:oracle:thin:@localhost:1521:xe]
+2766713 [http-nio-2015-exec-1] DEBUG org.springframework.jdbc.core.JdbcTemplate  – SQL update affected 1 rows
+2766719 [http-nio-2015-exec-1] DEBUG org.springframework.jdbc.datasource.DataSourceUtils  – Returning JDBC Connection to DataSource
+vijay-----47852
+2766821 [http-nio-2015-exec-1] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory  – Invoking afterPropertiesSet() on bean with name 'display.jsp'
+2766857 [http-nio-2015-exec-1] DEBUG org.springframework.web.servlet.DispatcherServlet  – Rendering view [org.springframework.web.servlet.view.InternalResourceView: name 'display.jsp'; URL [display.jsp]] in DispatcherServlet with name 'springDispatcherServlet'
+2766859 [http-nio-2015-exec-1] DEBUG org.springframework.web.servlet.view.InternalResourceView  – Added model object 'employeeFormBean' of type [com.spring.commandbeans.EmployeeFormBean] to request in view with name 'display.jsp'
+2766859 [http-nio-2015-exec-1] DEBUG org.springframework.web.servlet.view.InternalResourceView  – Added model object 'org.springframework.validation.BindingResult.employeeFormBean' of type [org.springframework.validation.BeanPropertyBindingResult] to request in view with name 'display.jsp'
+2766860 [http-nio-2015-exec-1] DEBUG org.springframework.web.servlet.view.InternalResourceView  – Forwarding to resource [display.jsp] in InternalResourceView 'display.jsp'
+2767071 [http-nio-2015-exec-1] DEBUG org.springframework.web.servlet.DispatcherServlet  – Successfully completed request
+
+	 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Class DispatcherServlet
+{
+FirstController fc;
+InternalResourceViewResolver is;
+init()
+{
+Servlet name=config.getServlet();
+String filename= name+" "+Servlet.xml;
+WebApplicationContext container=new XmlWebApplicationContext
+(parentcontainer,"filename");
+fc=container.getbean(FirstController);
+is=container.getbean(InternalResourceViewResolver.class);
+}
+service(request,Response)
+{
+ModelAndView mav=fc.handleRequest();
+Map<String, Object> model = mav.getModel();
+Set<String> keySet = model.keySet();
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+The Servlet container will create the dispatcherServlet object and after that it will call init(),when  it load springBeanConfiguration file in init().
+The ServletContainer will give control to the AnnotationConfigApplicationContext container.
+Then  AnnotationConfigApplicationcontext  container will load that @Configuration classes and it will create the object of that class.and if they 
+find @Bean it will give us factory bean object,when it finds @ComponentScan(basePackages={"com.spring.utility.*"}) then it will load that package
+when it find @Configuration @Respository,@Service,@Controller.
+AnnotationConfigApplicationContext will load that classes and create that object if they finds any @Bean it will execute that annotation,it will
+return us FactoryBean object,if it finds any @Autowired Annoation it will inject our object with their dependencies like this AnnotationConfigApplicationContext
+container will create the objects of every class ,And work of that AnnotationConfigApplicationContext container work will done,and
+gives control to servlet container again.it will execute totatl init method.
+
+when it comes service() dispatcherServlet service() it will take request and it will check any u
+
+
+ 
+To recognize this @Configuration class in springBeanConfiguration in init() method to DispatcherServlet.
+we need to write <context:component-scan base-package="com.spring"></context:component-scan> in springBeanConfiguration file,then only container will
+
+
+
+AnnotationConfigApplicationContext container = new AnnotationConfigApplicationContext();
+ container.register(DBUtility.class);
+==================================================================================================================================== 
+ After that in that class AnnotationConfigApplicationContext finds any @Bean annotation it will execute that annotation,
+ then it gives us factory Bean object to us. like below example:
+ 
+ AnnotationConfigApplicationContext container = new AnnotationConfigApplicationContext();
+ container.register(DBUtility.class);
+ 
+ 
+  @Bean()
+	public JdbcTemplate getJdbcTemplate(){
+		JdbcTemplate jdbcTemplate= new JdbcTemplate(getDataSource());
+		return jdbcTemplate;
+ 		
+	}
+	
+	
+ 
+JdbcTemplate jdbcTemplate= container.getBean(JdbcTemplate.class);   //container will load Class of that Method return type and it will return us factory bean object.
+ 
+ 
+ Above example factory bean object reference is jdbcTemplate,if you want to change that reference name we will @Bean name attribute like below example
+ @Bean(name="db")
+ 
+ 
+ 
+ @Bean Annotation same as our <bean></bean> in springconfiguration file.
+ For @Bean change names also as our <bean name=""></bean> in springBeanConfiguration
+ For @Bean have attribute destry-method,init-method,value  same as our <bean  destry-method="",init-method="">
+ 
+ 
+ 
+ 
